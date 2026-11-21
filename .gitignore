@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# ympäristömuuttujat (API-avain, tietokannan osoite)
+.env
+.env*.local
+
+# Prisman generoitu client
+/generated/
+
+# Claude Coden projektiohjeet (paikallinen)
+CLAUDE.md

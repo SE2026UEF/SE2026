@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+/// Seurattu kylä. Tagi on pääavain (tallennetaan ilman #-merkkiä, esim. "JRCL00VU").
+model Player {
+  tag       String       @id @db.VarChar(15)
+  name      String       @db.VarChar(50)
+  createdAt DateTime     @default(now())
+  /// Päivittyy aina, kun kylä haetaan API:sta (viimeksi nähty).
+  updatedAt DateTime     @updatedAt
+  xpHistory XpSnapshot[]
+
+  @@map("players")
+}
+
+/// XP-tason historia: uusi rivi aina, kun taso on muuttunut edellisestä.
+model XpSnapshot {
+  id         Int      @id @default(autoincrement())
+  playerTag  String   @db.VarChar(15)
+  expLevel   Int
+  recordedAt DateTime @default(now())
+  player     Player   @relation(fields: [playerTag], references: [tag], onDelete: Cascade)
+
+  @@index([playerTag, recordedAt])
+  @@map("xp_snapshots")
+}
