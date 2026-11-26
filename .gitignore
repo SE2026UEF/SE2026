@@ -12,5 +12,7 @@ next-env.d.ts
 # Prisman generoitu client
 /generated/
 
-# Claude Coden projektiohjeet (paikallinen)
+# Tekoälyagenttien ohjeet (paikallisia). `next dev` luo AGENTS.md:n itse,
+# kun se havaitsee tekoälyagentin.
 CLAUDE.md
+AGENTS.md

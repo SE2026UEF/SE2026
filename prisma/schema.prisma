@@ -15,8 +15,72 @@ model Player {
   /// Päivittyy aina, kun kylä haetaan API:sta (viimeksi nähty).
   updatedAt DateTime     @updatedAt
   xpHistory XpSnapshot[]
+  heistHistory HeistSnapshot[]
+  warStarsHistory WarStarsSnapshot[]
+  leagueResults LeagueSeasonResult[]
 
   @@map("players")
+}
+
+/// Ryöstetyn Dark Elixirin kokonaismäärä (Heroic Heist -saavutuksen value):
+/// uusi rivi aina, kun määrä on muuttunut edellisestä. Peli lopettaa laskemisen
+/// arvoon 2 000 000 000, joten Int riittää.
+model HeistSnapshot {
+  id               Int      @id @default(autoincrement())
+  playerTag        String   @db.VarChar(15)
+  darkElixirLooted Int
+  recordedAt       DateTime @default(now())
+  player           Player   @relation(fields: [playerTag], references: [tag], onDelete: Cascade)
+
+  @@index([playerTag, recordedAt])
+  @@map("heist_snapshots")
+}
+
+/// Klaanisodissa kerättyjen tähtien kokonaismäärä (API: warStars):
+/// uusi rivi aina, kun määrä on muuttunut edellisestä.
+model WarStarsSnapshot {
+  id         Int      @id @default(autoincrement())
+  playerTag  String   @db.VarChar(15)
+  warStars   Int
+  recordedAt DateTime @default(now())
+  player     Player   @relation(fields: [playerTag], references: [tag], onDelete: Cascade)
+
+  @@index([playerTag, recordedAt])
+  @@map("war_stars_snapshots")
+}
+
+/// Ranked-liigatasot CoC API:n /leaguetiers-päätepisteestä. Id:t ovat
+/// järjestyksessä: 105000000 = Unranked, ... 105000036 = Legend League I.
+model LeagueTier {
+  id      Int                  @id
+  name    String               @db.VarChar(50)
+  iconUrl String?              @db.VarChar(255)
+  results LeagueSeasonResult[]
+
+  @@map("league_tiers")
+}
+
+/// Yhden viikkoturnauksen lopputulos (CoC API: /players/{tag}/leaguehistory).
+/// API palauttaa vain muutaman viime viikon, joten rivit kerätään talteen.
+model LeagueSeasonResult {
+  playerTag      String     @db.VarChar(15)
+  /// Viikon alkuhetki Unix-sekunteina (maanantai 05:00 UTC).
+  seasonId       Int
+  leagueTierId   Int
+  leagueTrophies Int
+  /// Sijoitus viikon ryhmässä.
+  placement      Int
+  attackWins     Int
+  attackLosses   Int
+  defenseWins    Int
+  defenseLosses  Int
+  defenseStars   Int
+  maxBattles     Int
+  player         Player     @relation(fields: [playerTag], references: [tag], onDelete: Cascade)
+  leagueTier     LeagueTier @relation(fields: [leagueTierId], references: [id])
+
+  @@id([playerTag, seasonId])
+  @@map("league_season_results")
 }
 
 /// XP-tason historia: uusi rivi aina, kun taso on muuttunut edellisestä.
