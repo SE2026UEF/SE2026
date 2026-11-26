@@ -25,3 +25,17 @@
    ```
 
 5. Avaa selaimessa http://localhost:3000.
+
+## `git pull`in jälkeen
+
+Jos muutoksissa on uusia migraatioita (`prisma/migrations/`), päivitä tietokanta ja Prisma-client. Jos dev-palvelin on käynnissä, pysäytä se ensin ja käynnistä uudelleen lopuksi.
+
+```bash
+npm install
+npx prisma migrate dev
+npx prisma generate
+npx prisma db seed   # valinnainen: päivitetty testidata
+npm run dev
+```
+
+Seed poistaa ensin oletuskylän (`#JRCL00VU`) kaikki tallennetut rivit ja luo testihistorian tilalle. Seuraava haku sivulla tallentaa oikeat nykyarvot historian jatkoksi.
