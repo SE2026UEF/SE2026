@@ -1,23 +1,23 @@
 export type XpPoint = { expLevel: number; recordedAt: string };
 
-// Pelkkä SVG, ei kaaviokirjastoa. Arvot ovat viewBox-yksiköitä.
 const W = 600;
-const H = 240;
-const M = { top: 16, right: 44, bottom: 28, left: 40 };
+const H = 220;
+const M = { top: 18, right: 44, bottom: 28, left: 42 };
 const PLOT_W = W - M.left - M.right;
 const PLOT_H = H - M.top - M.bottom;
 
-const SERIES = "#2a78d6";
-const GRID = "#e4e3df";
-const MUTED = "#52514e";
-const SURFACE = "#ffffff";
+const SERIES = "#38bdf8";
+const GRID = "#1e293b";
+const MUTED = "#94a3b8";
+const SURFACE = "#090d16";
+const POINT_STROKE = "#0f172a";
 
 const formatDate = (d: Date) =>
   d.toLocaleDateString("fi-FI", { day: "numeric", month: "numeric", year: "numeric" });
 
 /** Tasaväliset kokonaislukutikit, jotka kattavat välin [min, max]. */
 function niceTicks(min: number, max: number, count: number): number[] {
-  const raw = (max - min) / count;
+  const raw = Math.max(1, (max - min) / count);
   const mag = 10 ** Math.floor(Math.log10(raw));
   const step = Math.max(1, [1, 2, 5, 10].map((m) => m * mag).find((s) => s >= raw)!);
   const ticks: number[] = [];
@@ -29,14 +29,17 @@ function niceTicks(min: number, max: number, count: number): number[] {
 
 export default function XpChart({ history }: { history: XpPoint[] }) {
   if (history.length === 0) {
-    return <p>Ei vielä tallennettua XP-historiaa.</p>;
+    return <p className="muted-empty">Ei vielä tallennettua XP-historiaa.</p>;
   }
 
-  const points = history.map((p) => ({
-    date: new Date(p.recordedAt),
-    t: new Date(p.recordedAt).getTime(),
-    xp: p.expLevel,
-  }));
+  const points = history.map((p) => {
+    const date = new Date(p.recordedAt);
+    return {
+      date,
+      t: date.getTime(),
+      xp: p.expLevel,
+    };
+  });
 
   const tMin = points[0].t;
   const tMax = points[points.length - 1].t;
@@ -55,56 +58,89 @@ export default function XpChart({ history }: { history: XpPoint[] }) {
     tMax === tMin ? M.left + PLOT_W / 2 : M.left + ((t - tMin) / (tMax - tMin)) * PLOT_W;
   const y = (v: number) => M.top + (1 - (v - yMin) / (yMax - yMin)) * PLOT_H;
 
-  // X-akselille 4 tasavälistä päivämäärää (tai yksi, jos pisteitä on vain yksi).
   const xTicks =
     tMax === tMin ? [tMin] : [0, 1, 2, 3].map((i) => tMin + ((tMax - tMin) * i) / 3);
 
-  const path = points.map((p, i) => `${i ? "L" : "M"}${x(p.t)},${y(p.xp)}`).join(" ");
+  const linePath = points.map((p, i) => `${i ? "L" : "M"}${x(p.t)},${y(p.xp)}`).join(" ");
+  const areaPath =
+    points.length > 1
+      ? `${linePath} L${x(points[points.length - 1].t)},${M.top + PLOT_H} L${x(points[0].t)},${M.top + PLOT_H} Z`
+      : "";
+
   const last = points[points.length - 1];
 
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      width={W}
-      height={H}
       role="img"
       aria-label={`XP-taso ${formatDate(points[0].date)}–${formatDate(last.date)}: ${points[0].xp} → ${last.xp}`}
-      fontFamily="sans-serif"
+      fontFamily="system-ui, -apple-system, sans-serif"
       fontSize={12}
+      style={{ width: "100%", height: "auto", display: "block", borderRadius: "8px" }}
     >
-      <rect width={W} height={H} fill={SURFACE} />
+      <defs>
+        <linearGradient id="xpAreaFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={SERIES} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={SERIES} stopOpacity="0.0" />
+        </linearGradient>
+      </defs>
+
+      <rect width={W} height={H} fill={SURFACE} rx={8} />
 
       {/* Vaakaruudukko ja Y-akselin arvot */}
       {yTicks.map((v) => (
         <g key={v}>
-          <line x1={M.left} x2={W - M.right} y1={y(v)} y2={y(v)} stroke={GRID} strokeWidth={1} />
+          <line
+            x1={M.left}
+            x2={W - M.right}
+            y1={y(v)}
+            y2={y(v)}
+            stroke={GRID}
+            strokeWidth={1}
+            strokeDasharray="3 3"
+          />
           <text x={M.left - 8} y={y(v)} textAnchor="end" dominantBaseline="middle" fill={MUTED}>
             {v}
           </text>
         </g>
       ))}
 
-      {/* X-akselin päivämäärät; reunimmaiset ankkuroidaan sisäänpäin */}
+      {/* X-akselin päivämäärät */}
       {xTicks.map((t, i) => (
         <text
-          key={t}
+          key={`${t}-${i}`}
           x={x(t)}
           y={H - 8}
           fill={MUTED}
           textAnchor={
-            xTicks.length === 1 ? "middle" : i === 0 ? "start" : i === xTicks.length - 1 ? "end" : "middle"
+            xTicks.length === 1
+              ? "middle"
+              : i === 0
+              ? "start"
+              : i === xTicks.length - 1
+              ? "end"
+              : "middle"
           }
         >
           {formatDate(new Date(t))}
         </text>
       ))}
 
-      <path d={path} fill="none" stroke={SERIES} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+      {/* Liukuvärialue ja pääviiva */}
+      {areaPath && <path d={areaPath} fill="url(#xpAreaFill)" />}
+      <path
+        d={linePath}
+        fill="none"
+        stroke={SERIES}
+        strokeWidth={2.5}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
 
-      {points.map((p) => (
-        <g key={p.t}>
-          <circle cx={x(p.t)} cy={y(p.xp)} r={4} fill={SERIES} stroke={SURFACE} strokeWidth={2} />
-          {/* Pistettä suurempi, näkymätön alue hover-vihjettä varten */}
+      {/* Pisteet ja hover-alueet */}
+      {points.map((p, i) => (
+        <g key={`${p.t}-${i}`}>
+          <circle cx={x(p.t)} cy={y(p.xp)} r={3.5} fill={SERIES} stroke={POINT_STROKE} strokeWidth={1.5} />
           <circle cx={x(p.t)} cy={y(p.xp)} r={10} fill="transparent">
             <title>{`${formatDate(p.date)}: XP-taso ${p.xp}`}</title>
           </circle>
@@ -112,7 +148,13 @@ export default function XpChart({ history }: { history: XpPoint[] }) {
       ))}
 
       {/* Nykyinen arvo viivan päässä */}
-      <text x={x(last.t) + 8} y={y(last.xp)} dominantBaseline="middle" fill="#0b0b0b" fontWeight="bold">
+      <text
+        x={Math.min(W - 6, x(last.t) + 8)}
+        y={y(last.xp)}
+        dominantBaseline="middle"
+        fill="#f8fafc"
+        fontWeight="700"
+      >
         {last.xp}
       </text>
     </svg>

@@ -1,0 +1,535 @@
+:root {
+  --bg-main: #020617;
+  --bg-card: #0f172a;
+  --bg-elevated: #090d16;
+  --border-subtle: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-amber: #f59e0b;
+  --accent-amber-hover: #fbbf24;
+  --accent-sky: #38bdf8;
+  --accent-emerald: #34d399;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+.page-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+@media (min-width: 768px) {
+  .page-wrapper {
+    padding: 36px 32px 64px;
+  }
+}
+
+/* Yläotsikko ja haku */
+.topbar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 768px) {
+  .topbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.badge-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-amber);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.search-form {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .search-form {
+    width: auto;
+  }
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  .search-input {
+    width: 190px;
+  }
+}
+
+.search-input:focus {
+  outline: 2px solid var(--accent-amber);
+  outline-offset: 1px;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+  color: #090d16;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-box {
+  background: rgba(127, 29, 29, 0.35);
+  border: 1px solid #991b1b;
+  color: #fecaca;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+/* Yläpalkki: pelaajakortti */
+.hero-card {
+  background: linear-gradient(135deg, #0f172a 0%, #172033 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 1024px) {
+  .hero-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.player-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.player-name {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.tag-chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: var(--accent-amber-hover);
+  background: #090d16;
+  border: 1px solid #334155;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.league-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.clan-line {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.clan-line strong {
+  color: var(--text-main);
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .hero-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.stat-tile {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-width: 115px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.stat-value.amber {
+  color: var(--accent-amber-hover);
+}
+
+.stat-value.sky {
+  color: var(--accent-sky);
+}
+
+.stat-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Kolmen laatikon ruudukko */
+.three-col-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .three-col-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.panel-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  max-height: 580px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.panel-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.btn-secondary {
+  background: #1e293b;
+  color: var(--text-main);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-secondary:hover {
+  background: #334155;
+}
+
+.scroll-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 4px 0 0;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Saavutukset */
+.achievement-item {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.achievement-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.achievement-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stars {
+  font-size: 12px;
+  color: var(--accent-amber-hover);
+  white-space: nowrap;
+}
+
+.stars-empty {
+  color: #475569;
+}
+
+.achievement-info {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 10px 0 4px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: #1e293b;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent-amber);
+  border-radius: 999px;
+}
+
+.progress-fill.done {
+  background: var(--accent-emerald);
+}
+
+/* Armeija ja välilehdet */
+.tab-group {
+  display: flex;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  padding: 3px;
+  border-radius: 10px;
+  gap: 2px;
+}
+
+.tab-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-radius: 7px;
+  padding: 6px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: var(--accent-amber);
+  color: #090d16;
+}
+
+.unit-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0 4px 0 0;
+  overflow-y: auto;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+
+.unit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.unit-item.maxed {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.unit-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.unit-level {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  background: #1e293b;
+  color: #cbd5e1;
+  padding: 2px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.unit-item.maxed .unit-level {
+  background: var(--accent-amber-hover);
+  color: #090d16;
+}
+
+/* Tilastot ja XP-historia */
+.stats-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mini-stat {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.mini-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.mini-stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.mini-stat-value.emerald {
+  color: var(--accent-emerald);
+}
+
+.builder-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #cbd5e1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.chart-box {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.chart-heading {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.chart-frame {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.muted-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+}

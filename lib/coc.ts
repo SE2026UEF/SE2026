@@ -1,5 +1,21 @@
 const COC_API_BASE = "https://api.clashofclans.com/v1";
 
+export type Achievement = {
+  name: string;
+  stars: number;
+  value: number;
+  target: number;
+  info: string;
+  village: "home" | "builderBase";
+};
+
+export type UnitItem = {
+  name: string;
+  level: number;
+  maxLevel: number;
+  village?: "home" | "builderBase";
+};
+
 /** Frontille palautettava, karsittu näkymä kylän tiedoista. */
 export type Village = {
   tag: string;
@@ -18,7 +34,10 @@ export type Village = {
   league: string | null;
   role: string | null;
   clan: { tag: string; name: string; level: number } | null;
-  heroes: { name: string; level: number; maxLevel: number }[];
+  heroes: UnitItem[];
+  troops: UnitItem[];
+  spells: UnitItem[];
+  achievements: Achievement[];
 };
 
 export class CocApiError extends Error {
@@ -82,11 +101,44 @@ export async function getVillage(tag: string): Promise<Village> {
       ? { tag: body.clan.tag, name: body.clan.name, level: body.clan.clanLevel }
       : null,
     heroes: (body.heroes ?? [])
-      .filter((h: { village: string }) => h.village === "home")
-      .map((h: { name: string; level: number; maxLevel: number }) => ({
+      .filter((h: { village?: string }) => h.village === "home")
+      .map((h: { name: string; level: number; maxLevel: number; village?: string }) => ({
         name: h.name,
         level: h.level,
         maxLevel: h.maxLevel,
+        village: h.village === "builderBase" ? "builderBase" : "home",
       })),
+    troops: (body.troops ?? [])
+      .filter((t: { village?: string }) => t.village === "home")
+      .map((t: { name: string; level: number; maxLevel: number; village?: string }) => ({
+        name: t.name,
+        level: t.level,
+        maxLevel: t.maxLevel,
+        village: t.village === "builderBase" ? "builderBase" : "home",
+      })),
+    spells: (body.spells ?? [])
+      .map((s: { name: string; level: number; maxLevel: number; village?: string }) => ({
+        name: s.name,
+        level: s.level,
+        maxLevel: s.maxLevel,
+        village: s.village === "builderBase" ? "builderBase" : "home",
+      })),
+    achievements: (body.achievements ?? []).map(
+      (a: {
+        name: string;
+        stars: number;
+        value: number;
+        target: number;
+        info: string;
+        village?: string;
+      }) => ({
+        name: a.name,
+        stars: a.stars,
+        value: a.value,
+        target: a.target,
+        info: a.info,
+        village: a.village === "builderBase" ? "builderBase" : "home",
+      }),
+    ),
   };
 }
