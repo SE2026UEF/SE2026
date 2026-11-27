@@ -45,20 +45,6 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Dev-tilassa React ajaa efektin kahdesti; ref estää tuplahaun
-  // (ja sen, että kaksi samanaikaista tallennusta kilpailisi keskenään).
-  const didAutoFetch = useRef(false);
-  useEffect(() => {
-    if (didAutoFetch.current) return;
-    didAutoFetch.current = true;
-    fetchVillage(DEFAULT_TAG);
-  }, []);
-
-  function search(e: React.FormEvent) {
-    e.preventDefault();
-    fetchVillage(tag);
-  }
-
   async function fetchVillage(input: string) {
     const cleaned = input.trim().replace(/^#/, "");
     if (!cleaned) return;
@@ -97,6 +83,20 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Dev-tilassa React ajaa efektin kahdesti; ref estää tuplahaun
+  // (ja sen, että kaksi samanaikaista tallennusta kilpailisi keskenään).
+  const didAutoFetch = useRef(false);
+  useEffect(() => {
+    if (didAutoFetch.current) return;
+    didAutoFetch.current = true;
+    fetchVillage(DEFAULT_TAG);
+  }, []);
+
+  function search(e: React.FormEvent) {
+    e.preventDefault();
+    fetchVillage(tag);
   }
 
   return (
