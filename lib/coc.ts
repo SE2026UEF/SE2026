@@ -32,6 +32,54 @@ export type Village = {
   heroes: { name: string; level: number; maxLevel: number }[];
 };
 
+/** Frontille palautettava, karsittu näkymä klaanin tiedoista. */
+export type Clan = {
+  tag: string;
+  name: string;
+  description: string;
+  /** "open" | "inviteOnly" | "closed" */
+  type: string;
+  badgeUrl: string | null;
+  level: number;
+  points: number;
+  location: string | null;
+  chatLanguage: string | null;
+  requiredTrophies: number;
+  requiredTownHallLevel: number | null;
+  memberCount: number;
+  war: {
+    league: string | null;
+    wins: number;
+    ties: number;
+    losses: number;
+    winStreak: number;
+    /** esim. "always", "moreThanOncePerWeek", "never" */
+    frequency: string | null;
+    isLogPublic: boolean;
+  };
+  capital: {
+    league: string | null;
+    hallLevel: number | null;
+    points: number;
+  };
+  /** Järjestetty klaanin sisäisen sijoituksen (clanRank) mukaan. */
+  members: ClanMember[];
+};
+
+export type ClanMember = {
+  tag: string;
+  name: string;
+  /** API:n arvot: "leader", "coLeader", "admin" (= Elder), "member" */
+  role: string;
+  townHallLevel: number;
+  expLevel: number;
+  league: string | null;
+  trophies: number;
+  clanRank: number;
+  donations: number;
+  donationsReceived: number;
+};
+
 /** Yksi rivi CoC API:n /players/{tag}/leaguehistory-vastauksesta. */
 export type ApiLeagueSeason = {
   leagueSeasonId: number;
@@ -125,6 +173,66 @@ export async function getVillage(tag: string): Promise<Village> {
         level: h.level,
         maxLevel: h.maxLevel,
       })),
+  };
+}
+
+type ApiClanMember = {
+  tag: string;
+  name: string;
+  role: string;
+  townHallLevel: number;
+  expLevel: number;
+  leagueTier?: { name: string };
+  trophies: number;
+  clanRank: number;
+  donations: number;
+  donationsReceived: number;
+};
+
+export async function getClan(tag: string): Promise<Clan> {
+  const body = await cocFetch(`/clans/${encodeURIComponent(`#${tag}`)}`);
+
+  return {
+    tag: body.tag,
+    name: body.name,
+    description: body.description ?? "",
+    type: body.type,
+    badgeUrl: body.badgeUrls?.medium ?? null,
+    level: body.clanLevel,
+    points: body.clanPoints,
+    location: body.location?.name ?? null,
+    chatLanguage: body.chatLanguage?.name ?? null,
+    requiredTrophies: body.requiredTrophies,
+    requiredTownHallLevel: body.requiredTownhallLevel ?? null,
+    memberCount: body.members,
+    war: {
+      league: body.warLeague?.name ?? null,
+      wins: body.warWins ?? 0,
+      ties: body.warTies ?? 0,
+      losses: body.warLosses ?? 0,
+      winStreak: body.warWinStreak ?? 0,
+      frequency: body.warFrequency ?? null,
+      isLogPublic: body.isWarLogPublic ?? false,
+    },
+    capital: {
+      league: body.capitalLeague?.name ?? null,
+      hallLevel: body.clanCapital?.capitalHallLevel ?? null,
+      points: body.clanCapitalPoints ?? 0,
+    },
+    members: ((body.memberList ?? []) as ApiClanMember[])
+      .map((m) => ({
+        tag: m.tag,
+        name: m.name,
+        role: m.role,
+        townHallLevel: m.townHallLevel,
+        expLevel: m.expLevel,
+        league: m.leagueTier?.name ?? null,
+        trophies: m.trophies,
+        clanRank: m.clanRank,
+        donations: m.donations,
+        donationsReceived: m.donationsReceived,
+      }))
+      .sort((a, b) => a.clanRank - b.clanRank),
   };
 }
 
